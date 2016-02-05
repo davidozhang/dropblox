@@ -208,11 +208,33 @@ if __name__ == '__main__':
 
     # very simple AI that moves the current block as far left as possible
     moves = []                  # list of moves to make
+
+    moved_right = False
     while board.check(block):   # while the block in in a legal position
+      moved_right = True
+      block.right()
+      moves.append('right')
+    if moved_right:
+      block.left()
+      moves.pop()
+
+    moved_down = False
+    while board.check(block):   # while the block in in a legal position
+      moved_down = True
+      block.down()
+      moves.append('down')
+    if moved_down:
+      block.up()
+      moves.pop()
+
+    moved_left = False
+    while board.check(block):   # while the block in in a legal position
+      moved_left = True
       block.left()              # move the block left
       moves.append('left')      # append a left command to oure moves list
-    if len(moves) > 0:          # remove that last left command, as it got the block into an illegal state
+    if moved_left:          # remove that last left command, as it got the block into an illegal state
       moves.pop()
+
     for move in moves:          # print our moves
       print move
     sys.stdout.flush()          # flush stdout

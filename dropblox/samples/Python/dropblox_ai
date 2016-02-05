@@ -6,6 +6,7 @@
 import json
 import sys
 import time
+import copy
 
 class InvalidMoveError(ValueError):
   pass
@@ -226,6 +227,27 @@ if __name__ == '__main__':
     if moved_down:
       block.up()
       moves.pop()
+
+    while board.check(block):
+      cant_move_left = False
+      cant_move_down = False
+      block.down()
+      if board.check(block):
+        moves.append('down')
+      else:
+        cant_move_down = True
+        block.up()
+
+      block.left()
+      if board.check(block):
+        moves.append('left')
+      else:
+        cant_move_left = True
+        block.right()
+
+      if cant_move_down and cant_move_left:
+        break
+
 
     moved_left = False
     while board.check(block):   # while the block in in a legal position

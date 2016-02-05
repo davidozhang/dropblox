@@ -207,57 +207,81 @@ if __name__ == '__main__':
     # current block
     block = board.block
 
-    # very simple AI that moves the current block as far left as possible
-    moves = []                  # list of moves to make
+    one_rotate_block = copy.copy(block)
+    one_rotate_block.rotate()
+    two_rotate_block = copy.copy(one_rotate_block)
+    two_rotate_block.rotate()
+    three_rotate_block = copy.copy(two_rotate_block)
+    three_rotate_block.rotate()
 
-    moved_right = False
-    while board.check(block):   # while the block in in a legal position
-      moved_right = True
-      block.right()
-      moves.append('right')
-    if moved_right:
-      block.left()
-      moves.pop()
+    blocks = [block, one_rotate_block, two_rotate_block, three_rotate_block]
+    max_down = 0
+    best_move = None
 
-    moved_down = False
-    while board.check(block):   # while the block in in a legal position
-      moved_down = True
-      block.down()
-      moves.append('down')
-    if moved_down:
-      block.up()
-      moves.pop()
+    for i in xrange(12):
+      for k in xrange(len(blocks)):
+        cur_moves = []
+        for j in xrange(k):
+          cur_moves.append('rotate')
 
-    while board.check(block):
-      cant_move_left = False
-      cant_move_down = False
-      block.down()
-      if board.check(block):
-        moves.append('down')
-      else:
-        cant_move_down = True
-        block.up()
+        rotated_block = blocks[k]
 
-      block.left()
-      if board.check(block):
-        moves.append('left')
-      else:
-        cant_move_left = True
-        block.right()
+        # Start at the very right of the board
+        while board.check(rotated_block):
+          rotated_block.right()
+          if board.check(rotated_block):
+            cur_moves.append('right')
+          else:
+            rotated_block.left()
+            break
 
-      if cant_move_down and cant_move_left:
-        break
+        # Move the block i times to the left
+        for j in xrange(i):
+          rotated_block.left()
+          if board.check(rotated_block):
+            cur_moves.append('left')
+          else:
+            rotated_block.right()
+
+        # Move to the bottom
+        while board.check(rotated_block):
+          rotated_block.down()
+          if board.check(rotated_block):
+            cur_moves.append('down')
+          else:
+            rotated_block.up()
+            break
+
+        while board.check(rotated_block):
+          cant_move_left = False
+          cant_move_down = False
+          cant_move_right = False
+
+          rotated_block.down()
+          if board.check(rotated_block):
+            cur_moves.append('down')
+          else:
+            cant_move_down = True
+            rotated_block.up()
+
+          rotated_block.left()
+          if board.check(rotated_block):
+            cur_moves.append('left')
+          else:
+            cant_move_left = True
+            rotated_block.right()
+
+          if cant_move_down and cant_move_left:
+            break
 
 
-    moved_left = False
-    while board.check(block):   # while the block in in a legal position
-      moved_left = True
-      block.left()              # move the block left
-      moves.append('left')      # append a left command to oure moves list
-    if moved_left:          # remove that last left command, as it got the block into an illegal state
-      moves.pop()
+        count_down = cur_moves.count('down')
+        if count_down > max_down:
+          max_down = count_down
+          best_move = cur_moves
 
-    for move in moves:          # print our moves
+
+    for move in best_move:          # print our moves
       print move
     sys.stdout.flush()          # flush stdout
 
